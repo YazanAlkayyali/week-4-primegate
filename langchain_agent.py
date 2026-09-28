@@ -1,8 +1,8 @@
 from langchain.agents import create_agent
 from langchain.tools import tool
 from langchain_groq import ChatGroq
-from src.week_3_primegate_yeah.ai_config import API_KEY as GROQ_API_KEY 
-from src.week_3_primegate_yeah.retrieval import search_chapter
+from src.week_4_primegate.ai_config import API_KEY as GROQ_API_KEY
+from src.week_4_primegate.retrieval import search_chapter
 from lookup_tool import lookup_leave_balance
 
 
