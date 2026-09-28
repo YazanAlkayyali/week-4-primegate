@@ -1,2 +1,2 @@
 def main() -> None:
-    print("Hello from week-4-primegate!")
+    print("Hello from week-3-primegate-yeah!")
