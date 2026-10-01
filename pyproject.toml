@@ -28,6 +28,7 @@ dependencies = [
     "ragas>=0.4.3",
     "pymupdf>=1.28.2",
     "python-docx>=1.2.0",
+    "reportlab>=5.0.1",
 ]
 
 [project.scripts]
