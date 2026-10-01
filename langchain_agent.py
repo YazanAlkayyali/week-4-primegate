@@ -1,9 +1,12 @@
+from pathlib import Path
+
 from langchain.agents import create_agent
 from langchain.tools import tool
 from langchain_groq import ChatGroq
+from langchain.mcp import MCPAdapter
+
 from src.week_4_primegate.ai_config import API_KEY as GROQ_API_KEY
 from src.week_4_primegate.retrieval import search_chapter
-from lookup_tool import lookup_leave_balance
 
 
 @tool
@@ -16,11 +19,13 @@ def retrieve_chapter_context(query: str) -> str:
     lookup_leave_balance for that instead.
 
     Args:
-        query: The avarage question to search the chapter for.
+        query: The average question to search the chapter for.
     """
-    chunks=search_chapter(query, limit=5)
+    chunks = search_chapter(query, limit=5)
+
     if not chunks:
         return "No relevant passages found in Chapter 1 for that query."
+
     return "\n\n---\n\n".join(chunks)
 
 
@@ -45,8 +50,6 @@ Decision rules:
   or an ID is missing) -> ask ONE short clarifying question instead of
   guessing or calling a tool.
 
-Never call a tool "just in case." Pick exactly one path per turn.
-
 IMPORTANT: For any question about the textbook chapter, you must rely
 ONLY on what retrieve_chapter_context returns. If it returns "No
 relevant passages found," tell the user that directly -- do not answer
@@ -55,17 +58,57 @@ textbooks, even if you think you know the answer. Only Chapter 1 has
 been ingested; you have no information about any other chapter.
 """
 
-agent=create_agent(
-    model=ChatGroq(model="openai/gpt-oss-20b", api_key=GROQ_API_KEY),
-    tools=[retrieve_chapter_context, lookup_leave_balance],
-    system_prompt=SYSTEM_PROMPT,
-)
+
+# Path to our local MCP server
+MCP_SERVER_PATH = Path(__file__).resolve().parent / "mcp_server.py"
 
 
-def ask(user_input: str) -> str:
+_agent = None
+
+
+async def get_agent():
+    global _agent
+
+    if _agent is None:
+
+        async with MCPAdapter(MCP_SERVER_PATH) as adapter:
+
+            mcp_tools = await adapter.list_tools()
+
+            print(
+                "MCP tools loaded:",
+                [tool.name for tool in mcp_tools]
+            )
+
+            _agent = create_agent(
+                model=ChatGroq(
+                    model="openai/gpt-oss-20b",
+                    api_key=GROQ_API_KEY
+                ),
+                tools=[
+                    retrieve_chapter_context,
+                    *mcp_tools
+                ],
+                system_prompt=SYSTEM_PROMPT,
+            )
+
+    return _agent
+
+
+async def ask(user_input: str) -> str:
     """Run one turn through the agent and return the final text reply."""
-    result = agent.invoke(
-        {"messages": [{"role": "user", "content": user_input}]}
+
+    agent = await get_agent()
+
+    result = await agent.ainvoke(
+        {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": user_input
+                }
+            ]
+        }
     )
+
     return result["messages"][-1].content
- 
