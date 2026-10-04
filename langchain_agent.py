@@ -50,19 +50,14 @@ Decision rules:
 - Missing information -> ask for it.
 """
 
-# Both MCP servers, discovered through one adapter.
-# MCPConfig dict pattern source:
-# https://docs.langchain.com/oss/python/langchain/mcp/connections
-# ("Multiple servers" section)
+#source: https://docs.langchain.com/oss/python/langchain/mcp/connections
 
-# path to mcp server
 MCP_CONFIG = {
     "hr": {
         "command": "python",
         "args": [str(Path(__file__).resolve().parent / "mcp_server.py")],
     },
     "better-email": {
-        # Server + env var format source:
         # https://github.com/n24q02m/better-email-mcp (README, "Install")
         "command": "npx",
         "args": ["--yes", "@n24q02m/better-email-mcp@latest"],
@@ -73,8 +68,7 @@ MCP_CONFIG = {
 }
 
 _agent = None
-_history = []  # keeps the whole conversation so multi-turn things
-                # like "yes, send it" actually have context
+_history = []
 
 
 async def get_agent():
@@ -98,5 +92,5 @@ async def ask(user_input: str) -> str:
     agent = await get_agent()
     _history.append(HumanMessage(content=user_input))
     result = await agent.ainvoke({"messages": _history})
-    _history = result["messages"]  # carry the updated conversation forward
+    _history = result["messages"]
     return _history[-1].content

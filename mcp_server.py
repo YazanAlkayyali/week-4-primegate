@@ -1,9 +1,9 @@
 from mcp.server import MCPServer
 from lookup_tool import LEAVE_DB
 
-
+#https://github.com/modelcontextprotocol/python-sdk
 mcp = MCPServer("primegate")
-
+# here we make a mc server object called primegate 
 
 @mcp.tool()
 def lookup_leave_balance(employee_id: str) -> str:
@@ -24,3 +24,6 @@ def lookup_leave_balance(employee_id: str) -> str:
 
 if __name__ == "__main__":
     mcp.run()
+
+# caht.py will run this, this code just sits in the background waiting for a client to connect
+# and then it stays on standby

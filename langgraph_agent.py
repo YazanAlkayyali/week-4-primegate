@@ -62,7 +62,6 @@ app=graph.compile()
 
 png_data = app.get_graph().draw_mermaid_png()
 
-# 2. Write the binary data to a file named 'graph.png'
 with open("graph.png", "wb") as f:
     f.write(png_data)
 

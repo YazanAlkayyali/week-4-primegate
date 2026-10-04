@@ -1,6 +1,4 @@
-# ReportLab API source: reportlab.platypus (SimpleDocTemplate, Paragraph,
-# Spacer) -- standard, stable pattern documented across ReportLab's own
-# reference docs and user guide. See https://www.reportlab.com/opensource/
+# https://www.reportlab.com/opensource/
 
 from pathlib import Path
 
@@ -10,12 +8,6 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 
 
 def export_to_pdf(text: str, output_path: str, title: str | None = None) -> str:
-    """Write `text` out as a simple PDF file at `output_path`.
-
-    Splits on blank lines so multi-paragraph answers aren't squashed
-    into one giant block, and escapes a couple of characters that
-    ReportLab's Paragraph treats as markup.
-    """
     styles = getSampleStyleSheet()
     doc = SimpleDocTemplate(output_path, pagesize=letter)
     story = []
